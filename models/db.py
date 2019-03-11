@@ -29,6 +29,11 @@ class DB:
                 raise e
 
     @classmethod
+    def find_all(cls, collection_name):
+        results = DB.db[collection_name].find()
+        return results
+
+    @classmethod
     def find_one(cls, collection_name, query):
         DB.convert_objectid(query)
         result = DB.db[collection_name].find_one(query)
@@ -47,7 +52,8 @@ class DB:
     @classmethod
     def update_one(cls, collection_name, query, document):
         DB.convert_objectid(query)
-        result = DB.db[collection_name].update_one(query, document)
+        result = DB.db[collection_name].\
+            update_one(query, {'$set': document}, upsert=True)
         return result.modified_count == 1
 
     @classmethod

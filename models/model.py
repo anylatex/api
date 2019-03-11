@@ -46,6 +46,18 @@ class Model:
         except Exception as e:
             raise ModelError(str(e))
 
+    @classmethod
+    def find_all(cls):
+        collection_name = cls.name
+        raw_results = DB.find_all(collection_name)
+        results = []
+        # convert objectid to cls id
+        for result in raw_results:
+            result[cls.id_key] = str(result['_id'])
+            result.pop('_id')
+            results.append(result)
+        return results
+
     def exists_in_db(self):
         """Check if this id in db."""
         cls = self.__class__

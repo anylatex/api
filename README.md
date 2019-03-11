@@ -42,7 +42,7 @@ PDF object format:
 {
     "pdf_id": "pdf id",
     "compiled_time": "timestamp",
-    "data": "binary data"
+    "data": "base64 encoded string"
 }
 ```
 
@@ -61,9 +61,11 @@ Task object format:
 
 ```
 {
-    "task_id": "same to user's id",
-    "status": true or false,
-    "html": "html text"
+    "task_id": "task id",
+    "status": "new" or "compiling" or "finished",
+    "latex": "latex document",
+    "user_id": "user id",
+    "pdf_b64": "compiled pdf's content"
 }
 ```
 
@@ -83,6 +85,16 @@ Create a compiling task.
 POST /tasks
 
 {
-    "html": "html text"
+    "latex": "latex document",
+    "user_id": "user id"
 }
 ```
+
+### Delete a task
+
+Delete a finished task.
+
+DELETE /tasks/<task_id>
+
+
+
