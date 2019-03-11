@@ -13,9 +13,6 @@ from models.model import ModelError, ModelNotExistError
 app = Flask(__name__)
 api = Api(app)
 
-parser = reqparse.RequestParser()
-parser.add_argument('html', type=str)
-
 
 class UserAPI(Resource):
 
@@ -66,13 +63,24 @@ class TaskAPI(Resource):
             return {'error': str(e)}, 404
 
     def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('latex', type=str, required=True)
+        parser.add_argument('user_id', type=str, required=True)
         args = parser.parse_args()
-        task = Task(html=args['html'])
+        task = Task(latex=args['latex'], user_id=args['user_id'])
         try:
             task_dict = task.create_in_db()
             return task_dict, 201
         except ModelError as e:
             return {'error': str(e)}, 500
+
+    def delete(self, task_id):
+        task = Task(task_id=task_id)
+        try:
+            task.delete_in_db()
+            return '', 204
+        except ModelError as e:
+            return {'error': str(e)}, 404
 
 
 api.add_resource(UserAPI, '/users', '/users/<user_id>')

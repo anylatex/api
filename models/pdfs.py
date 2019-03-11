@@ -10,7 +10,7 @@ class PDF(Model):
     {
         'pdf_id': 'pdf id',
         'compiled_time': 'timestamp',
-        'data': 'binary data'
+        'data': 'b64 string'
     }
 
     """
@@ -18,7 +18,7 @@ class PDF(Model):
     name = 'pdfs'
     id_key = 'pdf_id'
 
-    def __init__(self, pdf_id=None, data=None):
+    def __init__(self, pdf_id=None, data=None, compiled_time=None):
 
         """Init a PDF object."""
 
