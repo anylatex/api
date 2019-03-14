@@ -1,0 +1,29 @@
+{
+    "mongo_uri": "mongodb://localhost:27017/",
+    "db": "anylatex",
+    "compile_cmd": "cd {outdir} && xelatex {filepath}",
+    "compile_timeout": 300,
+    "compile_tmp_dir": "compiler-tmp",
+    "structure_dir": "",
+    "templates": {
+        "article": {
+            "structure": "default.structure"
+        },
+        "ctexart": {
+            "structure": "default.structure"
+        },
+        "swjtuthesis": {
+            "cls_path": "https://github.com/anylatex/swjtuthesis",
+            "args": {
+                "name": {"help": "name"},
+                "title": {"help": "thesis's title"},
+                "major": {"help": "major"},
+                "instructor": {"help": "instructor"},
+                "grade": {"help": "grade"},
+                "stunum": {"help": "student numner"}
+            },
+            "structure": "swjtuthesis.structure"
+        },
+        "default": "ctexart"
+    }
+}

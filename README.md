@@ -63,7 +63,8 @@ Task object format:
 {
     "task_id": "task id",
     "status": "new" or "compiling" or "finished",
-    "latex": "latex document",
+    "body": "latex document's body",
+    "args": "template specified arguments",
     "user_id": "user id",
     "pdf_b64": "compiled pdf's content"
 }

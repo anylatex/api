@@ -1,0 +1,7 @@
+\documentclass{$documentclass}
+
+\begin{document}
+
+$body
+
+\end{document}
