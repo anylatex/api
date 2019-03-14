@@ -6,6 +6,7 @@ import base64
 import shutil
 import subprocess
 import multiprocessing
+from string import Template
 
 from models.users import User
 from models.pdfs import PDF
@@ -17,10 +18,13 @@ class LatexCompiler(multiprocessing.Process):
     """Compiler for compiling LaTex documents.
 
         Finish task object will have a `pdf_b64` attribute.
+
     """
 
-    def __init__(self, temp_dir, compile_cmd, compile_timeout, task_queue, result_queue, name="Compiler"):
+    def __init__(self, structure_dir, template_configs, temp_dir, compile_cmd, compile_timeout, task_queue, result_queue, name="Compiler"):
         multiprocessing.Process.__init__(self, name=name)
+        self.structure_dir = structure_dir
+        self.template_configs = template_configs
         # converting to real path
         self.temp_dir = os.path.realpath(temp_dir)
         self.compile_cmd = compile_cmd
@@ -39,8 +43,29 @@ class LatexCompiler(multiprocessing.Process):
             filepath = os.path.join(compile_tmp_dir, filename)
             pdfname = task.task_id + '.pdf'
             pdfpath = os.path.join(compile_tmp_dir, pdfname)
+            # get structure document path
+            structure = self.template_configs[task.template]['structure']
+            structure_path = os.path.join(self.structure_dir, structure)
+            with open(structure_path, 'r') as f:
+                structure_t = Template(f.read())
+            # get template's arguments
+            args = task.args
+            print(args)
+            sub_dict = dict(documentclass=task.template, body=task.body)
+            if args:
+                for arg, value in args.items():
+                    sub_dict[arg] = value
+            latex = structure_t.substitute(sub_dict)
+            # move cls to compile dir if exists
+            cls_path = self.template_configs[task.template].get('cls_path')
+            if cls_path:
+                shutil.copy(
+                    cls_path,
+                    os.path.join(compile_tmp_dir, os.path.split(cls_path)[-1])
+                )
+            # write tex file
             with open(filepath, 'w') as f:
-                f.write(task.latex)
+                f.write(latex)
             # start compiling
             try:
                 command = self.compile_cmd.format(
@@ -71,11 +96,17 @@ class TaskMonitor:
 
     """Monitor of processing uncompiled tasks in db."""
 
-    def __init__(self, compile_cmd=None,
-                 compile_timeout=300, compile_tmp_dir='compiler-tmp',
+    def __init__(self, structure_dir='', templates={},
+                 compile_cmd=None, compile_timeout=300,
+                 compile_tmp_dir='compiler-tmp',
                  compiler_number=None, db_scan_interval=1, **other):
         self.name = self.__class__.__name__
         # compiler settings
+        if not structure_dir:
+            structure_dir = os.path.dirname(os.path.realpath(__file__))
+            structure_dir = os.path.join(structure_dir, 'structures')
+        self.structure_dir = structure_dir
+        self.template_configs = templates
         if not compiler_number:
             compiler_number = multiprocessing.cpu_count()
         self.compiler_number = compiler_number
@@ -132,6 +163,8 @@ class TaskMonitor:
         print('Creating {} latex compilers'.format(self.compiler_number))
         self.compilers = [
             LatexCompiler(
+                self.structure_dir,
+                self.template_configs,
                 self.compile_tmp_dir,
                 self.compile_cmd,
                 self.compile_timeout,

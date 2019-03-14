@@ -1,0 +1,15 @@
+\documentclass{$documentclass}
+\begin{document}
+
+\title{$title}
+\author{$name}
+\major{$major}
+\instructor{$instructor}
+\grade{$grade}
+\stunum{$stunum}
+
+\maketitlepage
+
+$body
+
+\end{document}

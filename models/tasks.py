@@ -11,7 +11,8 @@ class Task(Model):
         "task_id": "task id",
         "status": "new" or "compiling" or "finished",
         "user_id": "user id",
-        "latex": "latex document",
+        "template": "template to use",
+        "args": "arguments",
         "pdf_b64": "compiled pdf content"
     }
 
@@ -20,11 +21,13 @@ class Task(Model):
     name = "tasks"
     id_key = "task_id"
 
-    def __init__(self, task_id=None, user_id=None, status="new", latex="", **other):
+    def __init__(self, task_id=None, user_id=None, status="new", template="", args={}, body="", **other):
         """Init a task."""
 
         self.task_id = task_id
         self.user_id = user_id
         self.status = status
-        self.latex = latex
+        self.template = template
+        self.args = args
+        self.body = body
 
