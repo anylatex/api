@@ -7,8 +7,19 @@
 \instructor{$instructor}
 \grade{$grade}
 \stunum{$stunum}
+\class{$class}
+\department{$department}
+\taskstartdate{$taskstartdate}
+\taskenddate{$taskenddate}
+\abstract{$abstract}
+\keywords{$keywords}
+\enabstract{$enabstract}
+\enkeywords{$enkeywords}
 
 \maketitlepage
+\makeais
+\makecua
+\makefrontmatter
 
 $body
 

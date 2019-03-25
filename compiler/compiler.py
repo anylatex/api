@@ -51,9 +51,14 @@ class LatexCompiler(multiprocessing.Process):
             # get template's arguments
             args = task.args
             print(args)
+            part_args = task.part_args
+            print(part_args)
             sub_dict = dict(documentclass=task.template, body=task.body)
             if args:
                 for arg, value in args.items():
+                    sub_dict[arg] = value
+            if part_args:
+                for arg, value in part_args.items():
                     sub_dict[arg] = value
             latex = structure_t.substitute(sub_dict)
             # move cls to compile dir if exists

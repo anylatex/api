@@ -73,9 +73,11 @@ class TaskAPI(Resource):
         parser.add_argument('args', type=str, required=True)
         parser.add_argument('template', type=str, required=True)
         parser.add_argument('user_id', type=str, required=True)
+        parser.add_argument('part_args', type=str, required=True)
         args = parser.parse_args()
         args['args'] = json.loads(args['args'])
-        task = Task(body=args['body'], template=args['template'], args=args['args'], user_id=args['user_id'])
+        args['part_args'] = json.loads(args['part_args'])
+        task = Task(**args)
         try:
             task_dict = task.create_in_db()
             return task_dict, 201

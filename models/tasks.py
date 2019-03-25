@@ -13,6 +13,7 @@ class Task(Model):
         "user_id": "user id",
         "template": "template to use",
         "args": "arguments",
+        "part_args": "arguments show in editor",
         "pdf_b64": "compiled pdf content"
     }
 
@@ -21,7 +22,7 @@ class Task(Model):
     name = "tasks"
     id_key = "task_id"
 
-    def __init__(self, task_id=None, user_id=None, status="new", template="", args={}, body="", **other):
+    def __init__(self, task_id=None, user_id=None, status="new", template="", args={}, part_args={}, body="", **other):
         """Init a task."""
 
         self.task_id = task_id
@@ -29,5 +30,6 @@ class Task(Model):
         self.status = status
         self.template = template
         self.args = args
+        self.part_args = part_args
         self.body = body
 
