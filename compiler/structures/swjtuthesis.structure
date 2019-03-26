@@ -1,4 +1,12 @@
 \documentclass{$documentclass}
+
+\usepackage{filecontents}
+
+\begin{filecontents}{cites.bib}
+$references
+\end{filecontents}
+\addbibresource{cites.bib}
+
 \begin{document}
 
 \title{$title}
@@ -23,4 +31,5 @@
 
 $body
 
+\makebackmatter
 \end{document}
