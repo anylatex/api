@@ -1,7 +1,19 @@
 \documentclass{$documentclass}
 
+\usepackage[backend=biber]{biblatex}
+
+\usepackage{filecontents}
+
+\begin{filecontents}{cites.bib}
+$references
+\end{filecontents}
+\addbibresource{cites.bib}
+
 \begin{document}
 
 $body
+
+\clearpage
+\printbibliography
 
 \end{document}

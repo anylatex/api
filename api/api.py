@@ -103,10 +103,10 @@ class TemplatesAPI(Resource):
         return templates, 200
 
 
-api.add_resource(UserAPI, '/users', '/users/<user_id>')
-api.add_resource(PDFAPI, '/pdfs/<pdf_id>')
-api.add_resource(TaskAPI, '/tasks', '/tasks/<task_id>')
-api.add_resource(TemplatesAPI, '/templates')
+api.add_resource(UserAPI, '/api/users', '/api/users/<user_id>')
+api.add_resource(PDFAPI, '/api/pdfs/<pdf_id>')
+api.add_resource(TaskAPI, '/api/tasks', '/api/tasks/<task_id>')
+api.add_resource(TemplatesAPI, '/api/templates')
 
 
 if __name__ == '__main__':
