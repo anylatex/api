@@ -34,8 +34,9 @@ class DB:
         return results
 
     @classmethod
-    def find_one(cls, collection_name, query):
-        DB.convert_objectid(query)
+    def find_one(cls, collection_name, query, custom_id=False):
+        if not custom_id:
+            DB.convert_objectid(query)
         result = DB.db[collection_name].find_one(query)
         if result:
             result.pop('_id')
@@ -50,15 +51,17 @@ class DB:
         return str(object_id)
 
     @classmethod
-    def update_one(cls, collection_name, query, document):
-        DB.convert_objectid(query)
+    def update_one(cls, collection_name, query, document, custom_id=False):
+        if not custom_id:
+            DB.convert_objectid(query)
         result = DB.db[collection_name].\
             update_one(query, {'$set': document}, upsert=True)
         return result.modified_count == 1
 
     @classmethod
-    def delete_one(cls, collection_name, query):
-        DB.convert_objectid(query)
+    def delete_one(cls, collection_name, query, custom_id=False):
+        if not custom_id:
+            DB.convert_objectid(query)
         result = DB.db[collection_name].delete_one(query)
         return result.deleted_count == 1
 

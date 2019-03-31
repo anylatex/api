@@ -40,8 +40,10 @@ class Model:
 
     def _find_one_in_db(self, object_id):
         cls_name = self.__class__.name
+        custom_id = getattr(self.__class__, 'custom_id', False)
         try:
-            raw_object = DB.find_one(cls_name, {"_id": object_id})
+            raw_object = DB.find_one(
+                cls_name, {"_id": object_id}, custom_id=custom_id)
             return raw_object
         except Exception as e:
             raise ModelError(str(e))
@@ -95,6 +97,7 @@ class Model:
 
     def create_in_db(self):
         """Create this document, id should be None.
+
             Return:
                 object's dict
         """
@@ -103,13 +106,21 @@ class Model:
 
         # check
         object_id = getattr(self, cls.id_key)
-        if object_id:
-            info = "Create in db failed: has id({}) in this {} instance."
-            raise ModelError(info.format(object_id, cls.__name__))
+        custom_id = getattr(cls, 'custom_id', False)
+        if custom_id:
+            if not object_id:
+                info = "Create {} in db failed: no id provided"
+                raise ModelError(info.format(cls.__name__))
+        else:
+            if object_id:
+                info = "Create {} in db failed: already has id({})."
+                raise ModelError(info.format(cls.__name__, object_id))
 
         # generate object's document
         document = self.to_dict()
         document.pop(cls.id_key)
+        if custom_id:
+            document['_id'] = object_id
 
         # create
         # TODO: check if success
@@ -122,6 +133,7 @@ class Model:
         """Update this document, should have an id."""
 
         cls = self.__class__
+        custom_id = getattr(cls, 'custom_id', False)
 
         # check
         object_id = getattr(self, cls.id_key)
@@ -139,12 +151,13 @@ class Model:
 
         # update
         # TODO: check if success
-        DB.update_one(cls.name, {'_id': object_id}, document)
+        DB.update_one(cls.name, {'_id': object_id}, document, custom_id=custom_id)
 
     def delete_in_db(self):
         """Delete this document, should have an id."""
 
         cls = self.__class__
+        custom_id = getattr(cls, 'custom_id', False)
 
         # check
         object_id = getattr(self, cls.id_key)
@@ -162,5 +175,5 @@ class Model:
 
         # delete
         # TODO: check if success
-        DB.delete_one(cls.name, {'_id': object_id})
+        DB.delete_one(cls.name, {'_id': object_id}, custom_id=custom_id)
 

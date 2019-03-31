@@ -10,6 +10,7 @@ from flask_restful import reqparse
 from models.users import User
 from models.pdfs import PDF
 from models.tasks import Task
+from models.images import Image
 from models.model import ModelError, ModelNotExistError
 
 
@@ -103,11 +104,48 @@ class TemplatesAPI(Resource):
         return templates, 200
 
 
+class ImagesAPI(Resource):
+
+    def get(self, image_id):
+        parser = reqparse.RequestParser()
+        parser.add_argument('check', type=str, required=False)
+        parser.add_argument('user_id', type=str, required=True)
+        args = parser.parse_args()
+        user_id = args['user_id']
+        image = Image(image_id=image_id, user_id=user_id)
+        try:
+            image.load_from_db()
+            if image.user_id != user_id:
+                error_info = 'User %s has no image: %s' % (user_id, image_id)
+                raise ModelNotExistError(error_info)
+            image_dict = image.to_dict()
+            if args.get('check') == 'true':
+                image_dict.pop('content')
+            return image_dict, 200
+        except ModelError as e:
+            return {'error': str(e)}, 404
+
+    def post(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('user_id', type=str, required=True)
+        parser.add_argument('content', type=str, required=True)
+        parser.add_argument('image_id', type=str, required=True)
+        args = parser.parse_args()
+        image = Image(image_id=args['image_id'],
+                      user_id=args['user_id'], content=args['content'])
+        try:
+            image_dict = image.create_in_db()
+            return image_dict, 201
+        except ModelError as e:
+            return {'error': str(e)}, 500
+
+
 api.add_resource(UserAPI, '/api/users', '/api/users/<user_id>')
 api.add_resource(PDFAPI, '/api/pdfs/<pdf_id>')
 api.add_resource(TaskAPI, '/api/tasks', '/api/tasks/<task_id>')
 api.add_resource(TemplatesAPI, '/api/templates')
+api.add_resource(ImagesAPI, '/api/images', '/api/images/<image_id>')
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080, debug=False)
+    app.run(host='127.0.0.1', port=8080, debug=False)

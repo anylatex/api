@@ -78,6 +78,7 @@ Get a compiling task's status by id.
 GET /tasks/<id>
 ```
 
+
 ### Create a task
 
 Create a compiling task.
@@ -95,7 +96,33 @@ POST /tasks
 
 Delete a finished task.
 
+```
 DELETE /tasks/<task_id>
+```
 
 
+## Images
+
+### Upload an image
+
+```
+POST /images
+
+{
+    "user_id": "user id",
+    "image_id": "image_id",
+    "content": "base64 encoded string"
+}
+```
+
+### Get an image
+
+```
+GET /images/<image_id>?user_id=<user id>
+
+params:
+{
+    "check": "set `true` not return the image content"
+}
+```
 
