@@ -10,6 +10,7 @@ from string import Template
 
 from models.users import User
 from models.pdfs import PDF
+from models.images import Image
 from models.tasks import Task
 
 
@@ -61,6 +62,17 @@ class LatexCompiler(multiprocessing.Process):
                 for arg, value in part_args.items():
                     sub_dict[arg] = value
             latex = structure_t.substitute(sub_dict)
+            # fetch images in DB and save them to the compiling directory
+            print(task.images)
+            for image_name in task.images:
+                image_id, image_type = image_name.split('.')
+                image = Image(image_id=image_id, user_id=task.user_id)
+                # TODO: catch errors
+                image.load_from_db()
+                image_content = base64.b64decode(image.content.encode())
+                image_path = os.path.join(compile_tmp_dir, image_name)
+                with open(image_path, 'wb') as f:
+                    f.write(image_content)
             # move cls to compile dir if exists
             cls_path = self.template_configs[task.template].get('cls_path')
             if cls_path:
