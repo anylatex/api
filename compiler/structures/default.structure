@@ -1,5 +1,8 @@
 \documentclass{$documentclass}
 
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{caption}
 \usepackage[backend=biber]{biblatex}
 
 \usepackage{filecontents}
