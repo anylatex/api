@@ -15,7 +15,7 @@ class Task(Model):
         "args": "arguments",
         "part_args": "arguments show in editor",
         "images": "list of image names"
-        "pdf_b64": "compiled pdf content"
+        "pdf_id": "compiled pdf's id"
     }
 
     """

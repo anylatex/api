@@ -18,7 +18,7 @@ class LatexCompiler(multiprocessing.Process):
 
     """Compiler for compiling LaTex documents.
 
-        Finish task object will have a `pdf_b64` attribute.
+        Finish task object will have a `pdf_id` attribute.
 
     """
 
@@ -162,9 +162,11 @@ class TaskMonitor:
         print(self.name, 'starts', 'processing result:', task_result.task_id)
         # get pdf b64 string and put into db
         pdf_b64 = task_result.pdf_b64
+        delattr(task_result, 'pdf_b64')
         compiled_time = str(int(time.time()))
         pdf = PDF(data=pdf_b64, compiled_time=compiled_time)
         pdf.create_in_db()
+        task_result.pdf_id = pdf.pdf_id
         user = User(user_id=task_result.user_id)
         user.load_from_db()
         user.compiled_pdfs.append(pdf.pdf_id)

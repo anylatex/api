@@ -1,9 +1,11 @@
 # coding: utf-8
 
 import os
+import io
 import json
+import base64
 
-from flask import Flask, request
+from flask import Flask, request, send_file
 from flask_restful import Resource, Api
 from flask_restful import reqparse
 
@@ -53,7 +55,15 @@ class PDFAPI(Resource):
         pdf = PDF(pdf_id=pdf_id)
         try:
             pdf.load_from_db()
-            return pdf.to_dict()
+            pdf_content = base64.b64decode(pdf.data)
+            length = len(pdf_content)
+            response = send_file(
+                io.BytesIO(pdf_content),
+                attachment_filename=pdf.pdf_id+'.pdf',
+                mimetype='application/pdf'
+            )
+            response.headers['Content-Length'] = str(length)
+            return response
         except ModelError as e:
             return {'error': str(e)}, 404
 
@@ -83,7 +93,7 @@ class TaskAPI(Resource):
         task = Task(**args)
         try:
             task_dict = task.create_in_db()
-            return task_dict, 201
+            return task_dict, 202
         except ModelError as e:
             return {'error': str(e)}, 500
 
