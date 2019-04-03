@@ -67,8 +67,11 @@ class LatexCompiler(multiprocessing.Process):
             for image_name in task.images:
                 image_id, image_type = image_name.split('.')
                 image = Image(image_id=image_id, user_id=task.user_id)
-                # TODO: catch errors
-                image.load_from_db()
+                try:
+                    image.load_from_db()
+                except Exception as e:
+                    print(e)
+                    continue
                 image_content = base64.b64decode(image.content.encode())
                 image_path = os.path.join(compile_tmp_dir, image_name)
                 with open(image_path, 'wb') as f:
