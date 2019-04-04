@@ -38,11 +38,13 @@ class LatexCompiler(multiprocessing.Process):
             task = self.task_queue.get()
             print(self.name, 'starts', 'processing task:', task.task_id)
             # create temp directory
-            compile_tmp_dir = os.path.join(self.temp_dir, task.task_id)
-            os.mkdir(compile_tmp_dir)
-            filename = task.task_id + '.tex'
+            compile_tmp_dir = os.path.join(
+                self.temp_dir, task.user_id + task.document_id)
+            if not os.path.exists(compile_tmp_dir):
+                os.mkdir(compile_tmp_dir)
+            filename = task.document_id + '.tex'
             filepath = os.path.join(compile_tmp_dir, filename)
-            pdfname = task.task_id + '.pdf'
+            pdfname = task.document_id + '.pdf'
             pdfpath = os.path.join(compile_tmp_dir, pdfname)
             # get structure document path
             structure = self.template_configs[task.template]['structure']
@@ -108,7 +110,7 @@ class LatexCompiler(multiprocessing.Process):
                 print("Compile timeout: ", e)
             finally:
                 # cleanup tmp files
-                shutil.rmtree(compile_tmp_dir)
+                # shutil.rmtree(compile_tmp_dir)
                 print(self.name, 'end', 'processing task:', task.task_id)
 
 

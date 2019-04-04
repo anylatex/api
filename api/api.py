@@ -84,6 +84,7 @@ class TaskAPI(Resource):
         parser.add_argument('args', type=str, required=True)
         parser.add_argument('template', type=str, required=True)
         parser.add_argument('user_id', type=str, required=True)
+        parser.add_argument('document_id', type=str, required=True)
         parser.add_argument('part_args', type=str, required=True)
         parser.add_argument('images', type=str, required=True)
         args = parser.parse_args()
