@@ -127,10 +127,12 @@ class ImagesAPI(Resource):
         user_id = args['user_id']
         image = Image(image_id=image_id, user_id=user_id)
         try:
+            user = User(user_id=user_id)
+            user.load_from_db()
             image.load_from_db()
-            if image.user_id != user_id:
-                error_info = 'User %s has no image: %s' % (user_id, image_id)
-                raise ModelNotExistError(error_info)
+            # if image.user_id != user_id:
+            #    error_info = 'User %s has no image: %s' % (user_id, image_id)
+            #     raise ModelNotExistError(error_info)
             image_dict = image.to_dict()
             if args.get('check') == 'true':
                 image_dict.pop('content')
