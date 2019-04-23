@@ -119,8 +119,7 @@ class TaskMonitor:
             structure_path = os.path.join(self.structure_dir, biber_structure)
             if os.path.exists(structure_path):
                 structure = biber_structure
-        else:
-            args.pop('references')
+                args.pop('references')
         structure_path = os.path.join(self.structure_dir, structure)
         with open(structure_path, 'r') as f:
             structure_t = Template(f.read())
