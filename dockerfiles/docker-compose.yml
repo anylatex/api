@@ -1,0 +1,27 @@
+version: "2.2"
+services:
+    api:
+        build:
+            context: api/
+            dockerfile: Dockerfile
+        ports:
+            - "4000:80"
+        volumes:
+            - ./config.json:/api/config.json
+        cpus: 1
+    compiler:
+        build:
+            context: compiler/
+            dockerfile: Dockerfile
+        volumes:
+            - ./config.json:/api/config.json
+            - compiler:/compiler-tmp
+        cpus: 0
+    mongo:
+        image: mongo:4.0
+        volumes:
+            - mongodb:/data/db
+volumes:
+    compiler:
+    mongodb:
+
