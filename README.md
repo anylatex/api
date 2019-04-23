@@ -1,128 +1,66 @@
-## User
-
-User object format:
+# Install
 
 ```
-{
-    "user_id": "user id",
-    "compiled_pdfs": ["pdf id"]
-}
+git clone https://github.com/anylatex/backend.git
 ```
 
-### Get a user
+# Run
 
-Get a user by user's id.
+## Run with Docker
 
-```
-GET /users/<id>
-```
+Install docker and docker-compose first. Then run with following commands.
 
-### Create a user
-
-Create a user.
+Check into the `dockerfiles` and rename `example-config-docker.json`.
 
 ```
-POST /users
+cd dockerfiles
+mv example-config-docker.json config.json
 ```
 
-### Delete a user
-
-Delete a user by user's id.
+Pull texlive-2018 docker image.
 
 ```
-DELETE /users/<id>
+sudo docker pull gyhh/texlive:latest
 ```
 
-
-## Compiled PDF
-
-PDF object format:
+Build docker images and run.
 
 ```
-{
-    "pdf_id": "pdf id",
-    "compiled_time": "timestamp",
-    "data": "base64 encoded string"
-}
-```
-
-### Get a compiled pdf
-
-Get a compiled pdf by id.
+sudo docker-compose build
+sudo docker-compose up
 
 ```
-GET /pdfs/<id>
-```
+
+Now, the application runs on `http://127.0.0.1:4000`.
 
 
-## Compile Tasks
+## Run without Docker
 
-Task object format:
+Install MongoDB and texlive-2018 with full scheme first.
 
-```
-{
-    "task_id": "task id",
-    "status": "new" or "compiling" or "finished",
-    "body": "latex document's body",
-    "args": "template specified arguments",
-    "user_id": "user id",
-    "pdf_b64": "compiled pdf's content"
-}
-```
 
-### Get a task's status
-
-Get a compiling task's status by id.
+Install requirments and rename `example-config.json`.
 
 ```
-GET /tasks/<id>
+pip3 install requirments.txt
+mv example-config.json config.json
 ```
 
-
-### Create a task
-
-Create a compiling task.
+Run api:
 
 ```
-POST /tasks
-
-{
-    "latex": "latex document",
-    "user_id": "user id"
-}
+python3 -m api.api
 ```
 
-### Delete a task
-
-Delete a finished task.
+or
 
 ```
-DELETE /tasks/<task_id>
+gunicorn -w 4 -b 127.0.0.1:4000 api.api:app
 ```
 
-
-## Images
-
-### Upload an image
+Run compiling service:
 
 ```
-POST /images
-
-{
-    "user_id": "user id",
-    "image_id": "image_id",
-    "content": "base64 encoded string"
-}
-```
-
-### Get an image
-
-```
-GET /images/<image_id>?user_id=<user id>
-
-params:
-{
-    "check": "set `true` not return the image content"
-}
+python3 -m compiler.compiler
 ```
 
