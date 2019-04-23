@@ -4,7 +4,7 @@
     "docker_socket_path": "/var/run/docker.sock",
     "texlive_docker_image": "gyhh/texlive",
     "compiler_docker_volume": "anylatex_compiler_volume",
-    "compile_cmd": "latexmk -cd -xelatex -f -interaction=batchmode -outdir={outdir} {filepath}",
+    "compile_cmd": "latexmk -cd --bibtex-cond -xelatex -f -interaction=batchmode -outdir={outdir} {filepath}",
     "compile_tmp_dir": "/compiler-tmp",
     "structure_dir": "",
     "templates": {

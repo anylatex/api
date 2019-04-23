@@ -104,15 +104,26 @@ class TaskMonitor:
         pdfname = task.document_id + '.pdf'
         pdfpath = os.path.join(compile_tmp_dir, pdfname)
         task.pdfpath = pdfpath
-        # get structure document path
-        structure = self.template_configs[task.template]['structure']
-        structure_path = os.path.join(self.structure_dir, structure)
-        with open(structure_path, 'r') as f:
-            structure_t = Template(f.read())
-        # get template's arguments
+        # get template's arguments and write them into the structure document
         args = task.args
         part_args = task.part_args
         sub_dict = dict(documentclass=task.template, body=task.body)
+        # get structure document path
+        structure = self.template_configs[task.template]['structure']
+        # TODO: need to optimize
+        if args['references']:
+            biber_structure = structure.replace(
+                '.structure',
+                '-biber.structure'
+            )
+            structure_path = os.path.join(self.structure_dir, biber_structure)
+            if os.path.exists(structure_path):
+                structure = biber_structure
+        else:
+            args.pop('references')
+        structure_path = os.path.join(self.structure_dir, structure)
+        with open(structure_path, 'r') as f:
+            structure_t = Template(f.read())
         if args:
             for arg, value in args.items():
                 sub_dict[arg] = value
