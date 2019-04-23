@@ -1,0 +1,43 @@
+{
+    "mongo_uri": "mongodb://mongo:27017/",
+    "db": "anylatex",
+    "docker_socket_path": "/var/run/docker.sock",
+    "texlive_docker_image": "gyhh/texlive",
+    "compiler_docker_volume": "anylatex_compiler_volume",
+    "compile_cmd": "latexmk -cd -xelatex -f -interaction=batchmode -outdir={outdir} {filepath}",
+    "compile_tmp_dir": "/compiler-tmp",
+    "structure_dir": "",
+    "templates": {
+        "article": {
+            "structure": "default.structure"
+        },
+        "ctexart": {
+            "structure": "default.structure"
+        },
+        "swjtuthesis": {
+            "cls_path": "https://github.com/anylatex/swjtuthesis",
+            "headings": ["chapter", "section", "subsection", "subsubsection"],
+            "args": {
+                "name": {"help": "name"},
+                "title": {"help": "thesis's title"},
+                "major": {"help": "major"},
+                "instructor": {"help": "instructor"},
+                "grade": {"help": "grade: 2015级"},
+                "stunum": {"help": "student numner"},
+                "class": {"help": "class name"},
+                "department": {"help": "department name"},
+                "taskstartdate": {"help": "task's start date"},
+                "taskenddate": {"help": "task's end date"}
+            },
+            "part_args": {
+                "abstract": {"help": "摘要"},
+                "keywords": {"help": "关键词"},
+                "enabstract": {"help": "英文摘要"},
+                "enkeywords": {"help": "英文关键词"}
+            },
+            "structure": "swjtuthesis.structure"
+        },
+        "default": "ctexart"
+    }
+}
+

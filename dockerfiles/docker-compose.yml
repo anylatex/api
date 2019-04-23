@@ -1,27 +1,35 @@
-version: "2.2"
+version: "3.7"
 services:
     api:
         build:
             context: api/
             dockerfile: Dockerfile
+        image: anylatex-api:latest
+        volumes:
+            - ./config.json:/backend/config.json
+    nginx:
+        build:
+            context: nginx/
+            dockerfile: Dockerfile
+        image: anylatex-nginx:latest
         ports:
             - "4000:80"
-        volumes:
-            - ./config.json:/api/config.json
-        cpus: 1
+        depends_on:
+            - api
     compiler:
         build:
             context: compiler/
             dockerfile: Dockerfile
+        image: anylatex-compiler:latest
         volumes:
-            - ./config.json:/api/config.json
-            - compiler:/compiler-tmp
-        cpus: 0
+            - /var/run/docker.sock:/var/run/docker.sock
+            - ./config.json:/backend/config.json
+            - compiler_volume:/compiler-tmp
     mongo:
         image: mongo:4.0
         volumes:
-            - mongodb:/data/db
+            - mongodb_volume:/data/db
 volumes:
-    compiler:
-    mongodb:
+    compiler_volume:
+    mongodb_volume:
 
