@@ -5,6 +5,7 @@
     "texlive_docker_image": "gyhh/texlive",
     "compiler_docker_volume": "anylatex_compiler_volume",
     "compile_cmd": "latexmk -cd --bibtex-cond -xelatex -f -interaction=batchmode -outdir={outdir} {filepath}",
+    "compiler_number": 2,
     "compile_tmp_dir": "/compiler-tmp",
     "structure_dir": "",
     "templates": {

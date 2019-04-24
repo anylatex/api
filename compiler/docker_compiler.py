@@ -22,7 +22,7 @@ class TaskMonitor:
                  compiler_docker_volume,
                  structure_dir='', templates={},
                  compile_cmd=None, compile_tmp_dir='/compiler-tmp',
-                 max_compiler_number=None, db_scan_interval=1, **other):
+                 compiler_number=None, db_scan_interval=1, **other):
         self.name = self.__class__.__name__
         self.docker_client = docker.from_env()
         self.texlive_docker_image = texlive_docker_image
@@ -33,9 +33,9 @@ class TaskMonitor:
             structure_dir = os.path.join(structure_dir, 'structures')
         self.structure_dir = structure_dir
         self.template_configs = templates
-        if not max_compiler_number:
-            max_compiler_number = os.cpu_count()
-        self.max_compiler_number = max_compiler_number
+        if not compiler_number:
+            compiler_number = os.cpu_count()
+        self.compiler_number = compiler_number
         if not compile_cmd:
             raise ValueError("no compile command provided.")
         self.compile_cmd = compile_cmd
@@ -45,6 +45,7 @@ class TaskMonitor:
         # other settings
         self.db_scan_interval = db_scan_interval
         self.compiling_containers = {}
+        self.compilers = []
 
     def scan(self):
         results = Task.find_all()
@@ -65,32 +66,55 @@ class TaskMonitor:
         return compile_tasks
 
     def start(self):
+        for _ in range(self.compiler_number):
+            compiler_name = 'texlive-' + str(_)
+            try:
+                # use existed containers
+                # TODO: catch exit signal and kill these containers
+                container = self.docker_client.containers.get(compiler_name)
+            except docker.errors.NotFound:
+                container = self.docker_client.containers.run(
+                    self.texlive_docker_image,
+                    command='/bin/bash',
+                    stdin_open=True,
+                    tty=True,
+                    detach=True,
+                    name='texlive-' + str(_),
+                    volumes={
+                        self.compiler_docker_volume: {
+                            'bind': self.compile_tmp_dir,
+                            'mode': 'rw'
+                        }
+                    }
+                )
+            finally:
+                self.compilers.append(container)
+
         while True:
             # scan tasks in db and assign new tasks
             new_tasks = self.scan()
-            assigned_num = 0
-            for new_task in new_tasks:
-                if (len(self.compiling_containers) < self.max_compiler_number):
-                    # create a container to run, assign an new task
-                    self.assign_new_task(new_task)
-                    assigned_num += 1
-            print('assign %d new tasks, %d tasks remain'
-                  % (assigned_num, len(new_tasks) - assigned_num))
+            idle_compilers = [
+                container for container in self.compilers
+                if container not in self.compiling_containers
+            ]
+            for i, new_task in enumerate(new_tasks[:len(idle_compilers)]):
+                # assign a new task
+                self.assign_new_task(idle_compilers[i], new_task)
+            # print('assign %d new tasks, %d tasks remain'
+            #       % (assigned_num, len(new_tasks) - assigned_num))
 
             # check if any tasks finished
             finished_containers = []
             for container, task in self.compiling_containers.items():
-                container.reload()
-                if container.status == 'exited':
-                    finished_containers.append(container)
+                if os.path.exists(task.finish_file):
                     self.process_result(task)
+                    finished_containers.append(container)
             for finished_container in finished_containers:
                 self.compiling_containers.pop(finished_container)
-                container.remove()
 
             time.sleep(self.db_scan_interval)
 
-    def assign_new_task(self, task):
+    def assign_new_task(self, container, task):
         task.status = 'compiling'
         task.update_to_db()
         print('Start', 'processing task:', task.task_id)
@@ -158,22 +182,22 @@ class TaskMonitor:
             filepath = filepath,
             outdir = compile_tmp_dir
         )
-        container = self.docker_client.containers.run(
-            self.texlive_docker_image,
-            command=command,
-            name='Texlive' + str(len(self.compiling_containers)),
-            volumes={
-                self.compiler_docker_volume: {
-                    'bind': self.compile_tmp_dir,
-                    'mode': 'rw'
-                }
-            },
+        # create a file when finishing compiling the .tex file
+        finish_file = os.path.join(compile_tmp_dir, 'finished')
+        command += '; touch %s' % finish_file
+        command = '/bin/bash -c "%s"' % command
+        task.finish_file = finish_file
+        container.exec_run(
+            command,
             detach=True
         )
+        print('Container', container.name, 'assigned a new task:', command)
         self.compiling_containers[container] = task
 
     def process_result(self, task):
         try:
+            os.remove(task.finish_file)
+            delattr(task, 'finish_file')
             pdfpath = task.pdfpath
             delattr(task, 'pdfpath')
             if not os.path.exists(pdfpath):

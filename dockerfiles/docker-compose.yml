@@ -1,5 +1,9 @@
 version: "3.7"
 services:
+    mongo:
+        image: mongo:4.0
+        volumes:
+            - mongodb_volume:/data/db
     api:
         build:
             context: api/
@@ -7,15 +11,8 @@ services:
         image: anylatex-api:latest
         volumes:
             - ./config.json:/backend/config.json
-    nginx:
-        build:
-            context: nginx/
-            dockerfile: Dockerfile
-        image: anylatex-nginx:latest
-        ports:
-            - "4000:80"
         depends_on:
-            - api
+            - mongo
     compiler:
         build:
             context: compiler/
@@ -25,10 +22,17 @@ services:
             - /var/run/docker.sock:/var/run/docker.sock
             - ./config.json:/backend/config.json
             - compiler_volume:/compiler-tmp
-    mongo:
-        image: mongo:4.0
-        volumes:
-            - mongodb_volume:/data/db
+        depends_on:
+            - mongo
+    nginx:
+        build:
+            context: nginx/
+            dockerfile: Dockerfile
+        image: anylatex-nginx:latest
+        ports:
+            - "4000:80"
+        depends_on:
+            - api
 volumes:
     compiler_volume:
     mongodb_volume:
