@@ -10,4 +10,5 @@ RUN git clone https://github.com/anylatex/backend.git /backend \
 WORKDIR /backend
 
 # start
-CMD python -m compiler.docker_compiler
+#CMD python -m compiler.docker_compiler
+CMD ["python", "-u", "-m", "compiler.docker_compiler"]
