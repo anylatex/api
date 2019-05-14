@@ -21,6 +21,7 @@ services:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
             - ./config.json:/backend/config.json
+            - ./templates:/templates
             - compiler_volume:/compiler-tmp
         depends_on:
             - mongo
