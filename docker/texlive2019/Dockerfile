@@ -14,7 +14,7 @@ RUN echo "selected_scheme scheme-full" >> /install-tl-unx/texlive.profile \
     && /install-tl-unx/install-tl -profile /install-tl-unx/texlive.profile \
     && rm -r /install-tl-unx \
     && rm install-tl-unx.tar.gz
-ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/texlive/2018/bin/x86_64-linux/:$PATH
+ENV PATH /usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/texlive/2019/bin/x86_64-linux/:$PATH
 WORKDIR /usr/local/texlive/2019/bin/x86_64-linux
 RUN ./tlmgr install latexmk \
     && ./tlmgr install texcount
